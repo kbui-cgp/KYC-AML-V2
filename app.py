@@ -30,8 +30,8 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(GENERATED_DOCS_FOLDER, exist_ok=True)
 
 # Configure the database
-database_uri = os.environ.get("DATABASE_URL", "sqlite:///cif_workflow.db")
-if database_uri.startswith("sqlite"):
+database_uri = os.environ.get("DATABASE_URL", "sqlite:////root/KYC-AML-V2/instance/kyc_aml.db")
+if database_uri.startswith("sqlite") and not database_uri.endswith("?charset=utf8mb4"):
     database_uri += "?charset=utf8mb4"
 app.config["SQLALCHEMY_DATABASE_URI"] = database_uri
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {

@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, flash, send_file,
 from werkzeug.utils import secure_filename
 from app import app, db
 from models import Client, Document, QuestionnaireResponse, WorkflowStatus, DocumentType, RiskTolerance, InvestmentHorizon, DER, PieceJustificative, ProfilInvestisseur, DocumentGenere, SuiviWorkflow
-from document_generator import generate_investment_report, generate_mission_letter, generate_der_document, generate_kyc_document
+from document_generator import generate_der_document
 import os
 from datetime import datetime
 
@@ -100,14 +100,8 @@ def client_onboarding():
                 nom=request.form['nom'].strip().upper(),
                 prenom=request.form['prenom'].strip().title(),
                 email=request.form['email'].strip().lower(),
-                telephone=request.form.get('telephone', '').strip(),
-                date_naissance=datetime.strptime(request.form['date_naissance'], '%Y-%m-%d').date() if request.form.get('date_naissance') else None,
-                adresse=request.form.get('adresse', '').strip(),
-                ville=request.form.get('ville', '').strip(),
-                profession=request.form.get('profession', '').strip(),
-                revenus_mensuels=float(request.form['revenus_mensuels']) if request.form.get('revenus_mensuels') else None,
-                patrimoine_total=float(request.form['patrimoine_total']) if request.form.get('patrimoine_total') else None,
-                charges_mensuelles=float(request.form['charges_mensuelles']) if request.form.get('charges_mensuelles') else None,
+                telephone=request.form['telephone'].strip(),
+                ville=request.form['ville'].strip(),
                 date_entree_relation=datetime.strptime(request.form['date_entree_relation'], '%Y-%m-%d').date() if request.form.get('date_entree_relation') else datetime.now().date(),
                 statut_workflow=WorkflowStatus.CREATED
             )
@@ -139,7 +133,11 @@ def client_onboarding():
             
         except Exception as e:
             db.session.rollback()
-            flash(f'Erreur lors de la création du client: {str(e)}', 'error')
+            # Gestion spécifique pour l'erreur d'email unique
+            if "UNIQUE constraint failed: clients.email" in str(e):
+                flash('Cette adresse email est déjà utilisée par un autre client. Veuillez utiliser une adresse email différente.', 'error')
+            else:
+                flash(f'Erreur lors de la création du client: {str(e)}', 'error')
     
     return render_template('client_onboarding.html')
 
