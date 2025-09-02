@@ -1,0 +1,14 @@
+Note: This would be a Word document template file, but since the current system uses python-docx for programmatic generation, 
+this template file is provided as a placeholder for future template-based document generation.
+
+The existing document_generator.py already creates comprehensive investment reports programmatically, 
+so this template file is not currently required for the system to function properly.
+
+If template-based generation were to be implemented in the future, this file would contain:
+- Client information placeholders ({{client_name}}, {{client_email}}, etc.)
+- Financial situation placeholders ({{revenus_mensuels}}, {{patrimoine_total}}, etc.)
+- Investment profile placeholders ({{tolerance_risque}}, {{horizon_investissement}}, etc.)
+- Recommendation sections with dynamic content placeholders
+
+The current programmatic approach in document_generator.py is more flexible and provides 
+better control over document formatting and content generation.

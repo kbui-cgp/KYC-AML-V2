@@ -1,0 +1,544 @@
+{% extends "base.html" %}
+
+{% block title %}Complétion KYC - {{ client.nom }} {{ client.prenom }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+
+<!-- Barre de progression permanente -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Progression du Workflow</h6>
+                    <span class="badge bg-primary">{{ progress }}%</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-{% if progress == 100 %}success{% elif progress >= 50 %}primary{% else %}warning{% endif %}" 
+                         role="progressbar" 
+                         style="width: {{ progress }}%;" 
+                         aria-valuenow="{{ progress }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col text-center">
+                        <small class="text-{% if progress >= 17 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress >= 17 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            Créé
+                        </small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-{% if progress >= 33 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress >= 33 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            DER
+                        </small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-{% if progress >= 50 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress >= 50 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            Signé
+                        </small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-{% if progress >= 67 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress >= 67 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            Documents
+                        </small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-{% if progress >= 83 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress >= 83 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            KYC
+                        </small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-{% if progress == 100 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress == 100 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            Terminé
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user-check"></i>
+                        KYC et Profil Investisseur - {{ client.nom }} {{ client.prenom }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- Section Situation Personnelle -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-user"></i> Situation Personnelle</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="situation_familiale">Situation familiale *</label>
+                                            <select class="form-control" name="situation_familiale" required>
+                                                <option value="">Sélectionner...</option>
+                                                <option value="CELIBATAIRE" {% if profil and profil.situation_familiale == 'CELIBATAIRE' %}selected{% endif %}>Célibataire</option>
+                                                <option value="MARIE" {% if profil and profil.situation_familiale == 'MARIE' %}selected{% endif %}>Marié(e)</option>
+                                                <option value="PACS" {% if profil and profil.situation_familiale == 'PACS' %}selected{% endif %}>Pacsé(e)</option>
+                                                <option value="DIVORCE" {% if profil and profil.situation_familiale == 'DIVORCE' %}selected{% endif %}>Divorcé(e)</option>
+                                                <option value="VEUF" {% if profil and profil.situation_familiale == 'VEUF' %}selected{% endif %}>Veuf(ve)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="nombre_enfants">Nombre d'enfants</label>
+                                            <input type="number" class="form-control" name="nombre_enfants" required
+                                                   value="{{ profil.nombre_enfants if profil else 0 }}" min="0" max="20" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profession">Profession *</label>
+                                    <input type="text" class="form-control" name="profession" required
+                                           value="{{ profil.profession if profil else '' }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Situation Financière -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-euro-sign"></i> Situation Financière</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="revenus_annuels">Revenus annuels (€) *</label>
+                                            <input type="number" class="form-control" name="revenus_annuels" required
+                                                   value="{{ profil.revenus_annuels if profil else '' }}" 
+                                                   step="1000" min="0" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="patrimoine_financier">Patrimoine financier (€)</label>
+                                            <input type="number" class="form-control" name="patrimoine_financier" required
+                                                   value="{{ profil.patrimoine_financier if profil else '' }}" 
+                                                   step="1000" min="0" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="patrimoine_immobilier">Patrimoine immobilier (€)</label>
+                                            <input type="number" class="form-control" name="patrimoine_immobilier" required
+                                                   value="{{ profil.patrimoine_immobilier if profil else '' }}" 
+                                                   step="1000" min="0" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="origine_fonds">Origine des fonds *</label>
+                                    <select class="form-control" name="origine_fonds" required>
+                                        <option value="">Sélectionner...</option>
+                                        <option value="SALAIRE" {% if profil and profil.origine_fonds == 'SALAIRE' %}selected{% endif %}>Salaire</option>
+                                        <option value="EPARGNE" {% if profil and profil.origine_fonds == 'EPARGNE' %}selected{% endif %}>Épargne</option>
+                                        <option value="HERITAGE" {% if profil and profil.origine_fonds == 'HERITAGE' %}selected{% endif %}>Héritage</option>
+                                        <option value="VENTE_BIEN" {% if profil and profil.origine_fonds == 'VENTE_BIEN' %}selected{% endif %}>Vente d'un bien</option>
+                                        <option value="AUTRE" {% if profil and profil.origine_fonds == 'AUTRE' %}selected{% endif %}>Autre</option>
+                                    </select>
+                                </div>
+
+                        <!-- Section Type d'Investisseur -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-user-tie"></i> Type d'Investisseur</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="type_investisseur">Classification *</label>
+                                    <select class="form-control" name="type_investisseur" required>
+                                        <option value="">Sélectionner...</option>
+                                        <option value="NON_PROFESSIONNEL" {% if profil and profil.type_investisseur and profil.type_investisseur.name == 'NON_PROFESSIONNEL' %}selected{% endif %}>Investisseur non-professionnel</option>
+                                        <option value="PROFESSIONNEL" {% if profil and profil.type_investisseur and profil.type_investisseur.name == 'PROFESSIONNEL' %}selected{% endif %}>Investisseur professionnel</option>
+                                        <option value="CONTREPARTIE_ELIGIBLE" {% if profil and profil.type_investisseur and profil.type_investisseur.name == 'CONTREPARTIE_ELIGIBLE' %}selected{% endif %}>Contrepartie éligible</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="type_souscripteur">Type de souscripteur *</label>
+                                    <select class="form-control" name="type_souscripteur" required>
+                                        <option value="">Sélectionner...</option>
+                                        <option value="PERSONNE_PHYSIQUE" {% if profil and profil.type_souscripteur and profil.type_souscripteur.name == 'PERSONNE_PHYSIQUE' %}selected{% endif %}>Personne physique</option>
+                                        <option value="PERSONNE_MORALE" {% if profil and profil.type_souscripteur and profil.type_souscripteur.name == 'PERSONNE_MORALE' %}selected{% endif %}>Personne morale</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Connaissance et Expérience -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="fas fa-graduation-cap"></i> Connaissance et Expérience</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label for="niveau_connaissance">Niveau de connaissance des produits financiers *</label>
+                                    <select class="form-control" name="niveau_connaissance" required>
+                                        <option value="">Sélectionner...</option>
+                                        <option value="FAIBLE_BASIQUE" {% if profil and profil.niveau_connaissance and profil.niveau_connaissance.name == 'FAIBLE_BASIQUE' %}selected{% endif %}>Faible / basique</option>
+                                        <option value="INVESTISSEUR_INFORME" {% if profil and profil.niveau_connaissance and profil.niveau_connaissance.name == 'INVESTISSEUR_INFORME' %}selected{% endif %}>Investisseur informé</option>
+                                        <option value="INVESTISSEUR_CONFIRME" {% if profil and profil.niveau_connaissance and profil.niveau_connaissance.name == 'INVESTISSEUR_CONFIRME' %}selected{% endif %}>Investisseur confirmé</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="experience_financiere">Expérience financière détaillée</label>
+
+                        <!-- Section Capacité Financière et Tolérance au Risque -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0"><i class="fas fa-chart-line"></i> Capacité Financière et Tolérance au Risque</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary">Préférences de risque</h6>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="garantie_capital" value="1" 
+                                                   {% if profil and profil.garantie_capital %}checked{% endif %}>
+                                            <label class="form-check-label">Garantie en capital : oui</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="risque_perte_capital" value="1" 
+                                                   {% if profil and profil.risque_perte_capital %}checked{% endif %}>
+                                            <label class="form-check-label">Risque de perte en capital : oui</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="perte_limitee_capital" value="1" 
+                                                   {% if profil and profil.perte_limitee_capital %}checked{% endif %}>
+                                            <label class="form-check-label">Perte limitée au capital investi : oui</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="perte_excedant_capital" value="1" 
+                                                   {% if profil and profil.perte_excedant_capital %}checked{% endif %}>
+                                            <label class="form-check-label">Perte excédant le capital investi : oui</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary">Préférences de rendement et liquidité</h6>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="rendement_garanti" value="1" 
+                                                   {% if profil and profil.rendement_garanti %}checked{% endif %}>
+                                            <label class="form-check-label">Rendement garanti : oui</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="risque_evolution_rendement" value="1" 
+                                                   {% if profil and profil.risque_evolution_rendement %}checked{% endif %}>
+                                            <label class="form-check-label">Risque d'évolution du rendement : oui</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="risque_liquidite" value="1" 
+                                                   {% if profil and profil.risque_liquidite %}checked{% endif %}>
+                                            <label class="form-check-label">Risque de liquidité : oui</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="liquidite_immediate" value="1" 
+                                                   {% if profil and profil.liquidite_immediate %}checked{% endif %}>
+                                            <label class="form-check-label">Liquidité immédiate : oui</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="tolerance_risque">Tolérance au risque *</label>
+                                            <select class="form-control" name="tolerance_risque" required>
+                                                <option value="">Sélectionner...</option>
+                                                <option value="FAIBLE" {% if profil and profil.tolerance_risque and profil.tolerance_risque.name == 'FAIBLE' %}selected{% endif %}>Faible</option>
+                                                <option value="MOYENNE" {% if profil and profil.tolerance_risque and profil.tolerance_risque.name == 'MOYENNE' %}selected{% endif %}>Moyenne</option>
+                                                <option value="ELEVEE" {% if profil and profil.tolerance_risque and profil.tolerance_risque.name == 'ELEVEE' %}selected{% endif %}>Élevée</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="srri_score">Score SRRI (1-7)</label>
+                                            <select class="form-control" name="srri_score" required>
+                                                <option value="">Sélectionner...</option>
+                                                {% for i in range(1, 8) %}
+                                                <option value="{{ i }}" {% if profil and profil.srri_score == i %}selected{% endif %}>{{ i }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="duree_investissement_annees">Durée d'investissement (années)</label>
+                                            <input type="number" class="form-control" name="duree_investissement_annees" required
+                                                   value="{{ profil.duree_investissement_annees if profil else '' }}" 
+                                                   min="1" max="50" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                        <!-- Section Critères et Risques liés à la Durabilité -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-leaf"></i> Critères et Risques liés à la Durabilité</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="classification_sfdr">Classification SFDR</label>
+                                            <select class="form-control" name="classification_sfdr" required>
+                                                <option value="">Sélectionner...</option>
+                                                <option value="ARTICLE_6" {% if profil and profil.classification_sfdr and profil.classification_sfdr.name == 'ARTICLE_6' %}selected{% endif %}>Article 6</option>
+                                                <option value="ARTICLE_8" {% if profil and profil.classification_sfdr and profil.classification_sfdr.name == 'ARTICLE_8' %}selected{% endif %}>Article 8</option>
+                                                <option value="ARTICLE_9" {% if profil and profil.classification_sfdr and profil.classification_sfdr.name == 'ARTICLE_9' %}selected{% endif %}>Article 9</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="caracteristiques_env_sociales_pct">Caractéristiques environnementales ou sociales (%)</label>
+                                            <input type="number" class="form-control" name="caracteristiques_env_sociales_pct" required
+                                                   value="{{ profil.caracteristiques_env_sociales_pct if profil else '' }}" 
+                                                   min="0" max="100" step="0.1" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="objectif_investissement_durable" value="1" 
+                                           {% if profil and profil.objectif_investissement_durable %}checked{% endif %}>
+                                    <label class="form-check-label">
+                                        <strong>Objectif d'investissement durable (ESG) : oui</strong>
+                                    </label>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="taxonomie_environnementale">Taxonomie environnementale (si applicable)</label>
+                                    <textarea class="form-control" name="taxonomie_environnementale" rows="2" required
+                                              placeholder="Précisez les critères de taxonomie environnementale..." required>{{ profil.taxonomie_environnementale if profil else '' }}</textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="incidences_negatives">Incidences négatives - Risques environnementaux ou sociaux spécifiques</label>
+                                    <textarea class="form-control" name="incidences_negatives" rows="3" required
+                                              placeholder="Identifiez les risques environnementaux ou sociaux spécifiques...">{{ profil.incidences_negatives if profil else '' }}</textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="activites_negatives_exclues">Activités négatives exclues</label>
+                                    <textarea class="form-control" name="activites_negatives_exclues" rows="3" required
+                                              placeholder="Liste des risques interdits (ex. pollution des sols, émissions GES, atteinte à la biodiversité, surconsommation des ressources naturelles)...">{{ profil.activites_negatives_exclues if profil else '' }}</textarea>
+                                    <small class="form-text text-muted">
+                                        Exemples : pollution des sols, émissions GES, atteinte à la biodiversité, surconsommation des ressources naturelles
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                                
+                                <div class="form-group">
+                                    <label for="horizon_investissement">Horizon d'investissement *</label>
+                                    <select class="form-control" name="horizon_investissement" required>
+                                        <option value="">Sélectionner...</option>
+                                        <option value="COURT" {% if profil and profil.horizon_investissement and profil.horizon_investissement.name == 'COURT' %}selected{% endif %}>Court terme (< 2 ans)</option>
+                                        <option value="MOYEN" {% if profil and profil.horizon_investissement and profil.horizon_investissement.name == 'MOYEN' %}selected{% endif %}>Moyen terme (2-5 ans)</option>
+                                        <option value="LONG" {% if profil and profil.horizon_investissement and profil.horizon_investissement.name == 'LONG' %}selected{% endif %}>Long terme (> 5 ans)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                                    <textarea class="form-control" name="experience_financiere" rows="3" placeholder="Décrivez votre expérience avec les produits financiers..." required>{{ profil.experience_financiere if profil else '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Section Profil Investisseur -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0"><i class="fas fa-chart-line"></i> Profil Investisseur</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="objectif_investissement">Objectif d'investissement *</label>
+                                            <select class="form-control" name="objectif_investissement" required>
+                                                <option value="">Sélectionner...</option>
+                                                <option value="PRESERVATION_CAPITAL" {% if profil and profil.objectif_investissement == 'PRESERVATION_CAPITAL' %}selected{% endif %}>Préservation du capital</option>
+                                                <option value="REVENUS_REGULIERS" {% if profil and profil.objectif_investissement == 'REVENUS_REGULIERS' %}selected{% endif %}>Revenus réguliers</option>
+                                                <option value="CROISSANCE_MODEREE" {% if profil and profil.objectif_investissement == 'CROISSANCE_MODEREE' %}selected{% endif %}>Croissance modérée</option>
+                                                <option value="CROISSANCE_FORTE" {% if profil and profil.objectif_investissement == 'CROISSANCE_FORTE' %}selected{% endif %}>Croissance forte</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="horizon_investissement">Horizon d'investissement *</label>
+                                            <select class="form-control" name="horizon_investissement" required>
+                                                <option value="">Sélectionner...</option>
+                                                <option value="COURT_TERME" {% if profil and profil.horizon_investissement == 'COURT_TERME' %}selected{% endif %}>Court terme (< 2 ans)</option>
+                                                <option value="MOYEN_TERME" {% if profil and profil.horizon_investissement == 'MOYEN_TERME' %}selected{% endif %}>Moyen terme (2-5 ans)</option>
+                                                <option value="LONG_TERME" {% if profil and profil.horizon_investissement == 'LONG_TERME' %}selected{% endif %}>Long terme (> 5 ans)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="tolerance_risque">Tolérance au risque *</label>
+                                            <select class="form-control" name="tolerance_risque" required>
+                                                <option value="">Sélectionner...</option>
+                                                <option value="FAIBLE" {% if profil and profil.tolerance_risque == 'FAIBLE' %}selected{% endif %}>Faible</option>
+                                                <option value="MODEREE" {% if profil and profil.tolerance_risque == 'MODEREE' %}selected{% endif %}>Modérée</option>
+                                                <option value="ELEVEE" {% if profil and profil.tolerance_risque == 'ELEVEE' %}selected{% endif %}>Élevée</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="experience_financiere">Expérience financière *</label>
+                                            <select class="form-control" name="experience_financiere" required>
+                                                <option value="">Sélectionner...</option>
+                                                <option value="DEBUTANT" {% if profil and profil.experience_financiere == 'DEBUTANT' %}selected{% endif %}>Débutant</option>
+                                                <option value="INTERMEDIAIRE" {% if profil and profil.experience_financiere == 'INTERMEDIAIRE' %}selected{% endif %}>Intermédiaire</option>
+                                                <option value="EXPERIMENTE" {% if profil and profil.experience_financiere == 'EXPERIMENTE' %}selected{% endif %}>Expérimenté</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="connaissance_produits">Connaissance des produits financiers *</label>
+                                    <textarea class="form-control" name="connaissance_produits" rows="3" required>{{ profil.connaissance_produits if profil else '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Section Objectifs et Besoins du Client -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-bullseye"></i> Objectifs et Besoins du Client</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="type_souscripteur">Type de souscripteur</label>
+                                            <select class="form-control" name="type_souscripteur" required>
+                                                <option value="">Sélectionner...</option>
+                                                <option value="PERSONNE_PHYSIQUE" {% if profil and profil.type_souscripteur and profil.type_souscripteur.name == 'PERSONNE_PHYSIQUE' %}selected{% endif %}>Personne physique</option>
+                                                <option value="PERSONNE_MORALE" {% if profil and profil.type_souscripteur and profil.type_souscripteur.name == 'PERSONNE_MORALE' %}selected{% endif %}>Personne morale</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label><strong>Objectifs d'investissement / besoins financiers</strong></label>
+                                    <small class="form-text text-muted mb-2">Sélectionnez tous les objectifs qui correspondent à vos besoins :</small>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="CONSTITUER_VALORISER_PATRIMOINE">
+                                                <label class="form-check-label">Constituer / valoriser un patrimoine</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="TRANSMETTRE_CAPITAL">
+                                                <label class="form-check-label">Transmettre un capital</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="REVENUS_COMPLEMENTAIRES">
+                                                <label class="form-check-label">Revenus complémentaires</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="PREPARER_RETRAITE">
+                                                <label class="form-check-label">Préparer la retraite</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="OPTIMISER_RENTABILITE">
+                                                <label class="form-check-label">Optimiser la rentabilité</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="DIVERSIFIER_PATRIMOINE">
+                                                <label class="form-check-label">Diversifier son patrimoine</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="OPTIMISER_FISCALITE">
+                                                <label class="form-check-label">Optimiser la fiscalité des revenus</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="PROTEGER_CONJOINT">
+                                                <label class="form-check-label">Protéger le conjoint survivant</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="PROTEGER_PROCHES">
+                                                <label class="form-check-label">Protéger ses proches</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="SECURISER_CAPITAL">
+                                                <label class="form-check-label">Sécuriser / préserver un capital</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="EPARGNE_PRECAUTION">
+                                                <label class="form-check-label">Épargne de précaution</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="objectifs_investissement" value="PLACER_LIQUIDITES_COURT_TERME">
+                                                <label class="form-check-label">Placer des liquidités à court terme</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="autres_objectifs">Autres objectifs ou précisions</label>
+                                    <textarea class="form-control" name="autres_objectifs" rows="3" 
+                                              placeholder="Précisez d'autres objectifs ou besoins spécifiques...">{{ profil.autres_objectifs if profil else '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ url_for('upload_piece_justificative', client_id=client.id) }}" 
+                                       class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left"></i> Retour aux pièces justificatives
+                                    </a>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save"></i> Sauvegarder et générer les documents
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

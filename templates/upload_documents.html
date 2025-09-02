@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}Documents KYC - {{ client.prenom }} {{ client.nom }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-upload me-2"></i>
+                    Documents KYC - {{ client.prenom }} {{ client.nom }}
+                </h3>
+                <p class="text-muted mb-0">Étape 2/4 - Téléchargement des documents obligatoires</p>
+            </div>
+            
+            <div class="card-body">
+                <!-- Documents obligatoires -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="alert alert-info d-flex align-items-center">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <div>
+                                <strong>Documents obligatoires requis :</strong><br>
+                                Suite à la signature de votre DER, vous devez maintenant fournir les 4 documents suivants pour continuer votre dossier.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card border-primary mb-3 h-100">
+                            <div class="card-header bg-primary text-white">
+                                <i class="fas fa-id-card me-2"></i>Pièce d'Identité
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text small">Carte d'identité ou passeport en cours de validité (recto/verso)</p>
+                                <span class="badge bg-danger">OBLIGATOIRE</span>
+                                {% set piece_id_uploaded = documents|selectattr("type_document.name", "equalto", "PIECE_IDENTITE")|list|length > 0 %}
+                                {% if piece_id_uploaded %}
+                                    <span class="badge bg-success ms-2"><i class="fas fa-check"></i> TÉLÉCHARGÉ</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card border-warning mb-3 h-100">
+                            <div class="card-header bg-warning text-dark">
+                                <i class="fas fa-file-invoice me-2"></i>Avis d'Imposition
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text small">Avis d'imposition de l'année en cours ou dernière déclaration</p>
+                                <span class="badge bg-danger">OBLIGATOIRE</span>
+                                {% set avis_impot_uploaded = documents|selectattr("type_document.name", "equalto", "AVIS_IMPOSITION")|list|length > 0 %}
+                                {% if avis_impot_uploaded %}
+                                    <span class="badge bg-success ms-2"><i class="fas fa-check"></i> TÉLÉCHARGÉ</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card border-success mb-3 h-100">
+                            <div class="card-header bg-success text-white">
+                                <i class="fas fa-home me-2"></i>Justificatif de Domicile
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text small">Facture (électricité, gaz, téléphone) datant de moins de 3 mois</p>
+                                <span class="badge bg-danger">OBLIGATOIRE</span>
+                                {% set justif_domicile_uploaded = documents|selectattr("type_document.name", "equalto", "JUSTIFICATIF_DOMICILE")|list|length > 0 %}
+                                {% if justif_domicile_uploaded %}
+                                    <span class="badge bg-success ms-2"><i class="fas fa-check"></i> TÉLÉCHARGÉ</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card border-info mb-3 h-100">
+                            <div class="card-header bg-info text-white">
+                                <i class="fas fa-university me-2"></i>Relevés Bancaires
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text small">Relevés de comptes des 3 derniers mois (tous comptes bancaires)</p>
+                                <span class="badge bg-danger">OBLIGATOIRE</span>
+                                {% set releve_bancaire_uploaded = documents|selectattr("type_document.name", "equalto", "RELEVE_BANCAIRE")|list|length > 0 %}
+                                {% if releve_bancaire_uploaded %}
+                                    <span class="badge bg-success ms-2"><i class="fas fa-check"></i> TÉLÉCHARGÉ</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Formulaire de téléchargement -->
+                <form method="POST" enctype="multipart/form-data" class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="file" class="form-label">Sélectionner un Document</label>
+                            <input type="file" class="form-control" id="file" name="file" required 
+                                   accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <div class="form-text">
+                                Formats acceptés: PDF, JPG, PNG, DOC, DOCX (max 16 MB)
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label for="document_type" class="form-label">Type de Document *</label>
+                            <select class="form-select" id="document_type" name="document_type" required>
+                                <option value="">-- Sélectionner --</option>
+                                {% for doc_type in DocumentType %}
+                                    {% if doc_type.name in ['PIECE_IDENTITE', 'AVIS_IMPOSITION', 'JUSTIFICATIF_DOMICILE', 'RELEVE_BANCAIRE', 'AUTRE'] %}
+                                        <option value="{{ doc_type.value }}">{{ doc_type.value }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Sélectionnez le type correspondant au document</div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload me-2"></i>Télécharger
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Informations client -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user me-2"></i>Informations Client</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Nom:</strong> {{ client.prenom }} {{ client.nom }}</p>
+                <p><strong>Email:</strong> {{ client.email }}</p>
+                {% if client.telephone %}
+                    <p><strong>Téléphone:</strong> {{ client.telephone }}</p>
+                {% endif %}
+                <span class="badge bg-{{ 'success' if client.statut_workflow.name == 'COMPLETED' else 'primary' }}">
+                    {{ client.statut_workflow.value }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des documents téléchargés -->
+{% if documents %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-folder-open me-2"></i>
+                    Documents Téléchargés ({{ documents|length }})
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-file me-2"></i>Document</th>
+                                <th><i class="fas fa-tag me-2"></i>Type</th>
+                                <th><i class="fas fa-weight me-2"></i>Taille</th>
+                                <th><i class="fas fa-calendar me-2"></i>Date</th>
+                                <th><i class="fas fa-cog me-2"></i>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for doc in documents %}
+                            <tr>
+                                <td>
+                                    <i class="fas fa-file-{% if 'pdf' in doc.nom_original.lower() %}pdf{% else %}alt{% endif %} me-2"></i>
+                                    {{ doc.nom_original }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ doc.type_document.value }}</span>
+                                </td>
+                                <td>
+                                    {% if doc.taille_fichier %}
+                                        {{ "%.1f"|format(doc.taille_fichier / 1024) }} KB
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>{{ doc.date_upload.strftime('%d/%m/%Y %H:%M') }}</td>
+                                <td>
+                                    <a href="{{ url_for('download_document', document_id=doc.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-download me-1"></i>Télécharger
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Navigation -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between">
+            <a href="{{ url_for('client_details', client_id=client.id) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour au Client
+            </a>
+            
+            {% set required_docs_count = 0 %}
+            {% for doc in documents %}
+                {% if doc.type_document.name in ['PIECE_IDENTITE', 'AVIS_IMPOSITION', 'JUSTIFICATIF_DOMICILE', 'RELEVE_BANCAIRE'] %}
+                    {% set required_docs_count = required_docs_count + 1 %}
+                {% endif %}
+            {% endfor %}
+            
+            {% if required_docs_count >= 4 %}
+                <a href="{{ url_for('questionnaire', client_id=client.id) }}" class="btn btn-success">
+                    <i class="fas fa-check me-2"></i>Continuer - Questionnaire <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            {% else %}
+                <button class="btn btn-primary" disabled title="Vous devez télécharger les 4 documents obligatoires pour continuer">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Documents obligatoires manquants ({{ required_docs_count }}/4)
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Progress -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h6 class="mb-3">Progression du Workflow</h6>
+                <div class="progress mb-2" style="height: 10px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ workflow_progress }}%" aria-valuenow="{{ workflow_progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="d-flex justify-content-between small text-muted">
+                    <span>✓ 1. DER</span>
+                    <span>
+                        {% if all_required_uploaded %}
+                            ✓ <strong>2. Documents</strong> ({{ required_docs_count }}/4)
+                        {% else %}
+                            <strong>2. Documents</strong> ({{ required_docs_count }}/4 - en cours)
+                        {% endif %}
+                    </span>
+                    <span>3. Questionnaire</span>
+                    <span>4. Documents finaux</span>
+                </div>
+                <div class="text-center mt-2">
+                    <small class="text-muted">Progression: {{ workflow_progress }}%</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Prévisualisation du fichier
+    document.getElementById('file').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Vérifier la taille
+            if (file.size > 16 * 1024 * 1024) {
+                alert('Le fichier est trop volumineux (max 16 MB)');
+                e.target.value = '';
+                return;
+            }
+            
+            // Suggestion automatique du type de document
+            const filename = file.name.toLowerCase();
+            const typeSelect = document.getElementById('document_type');
+            
+            if (filename.includes('identite') || filename.includes('passeport') || filename.includes('carte')) {
+                typeSelect.value = "Pièce d'identité";
+            } else if (filename.includes('domicile') || filename.includes('edf') || filename.includes('facture')) {
+                typeSelect.value = "Justificatif de domicile";
+            } else if (filename.includes('impot') || filename.includes('fiscal') || filename.includes('avis')) {
+                typeSelect.value = "Avis d'imposition";
+            } else if (filename.includes('rib') || filename.includes('bancaire') || filename.includes('releve')) {
+                typeSelect.value = "Relevé bancaire";
+            }
+        }
+    });
+</script>
+{% endblock %}

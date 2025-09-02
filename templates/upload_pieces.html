@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Upload des pièces justificatives - {{ client.nom }} {{ client.prenom }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-upload"></i>
+                        Upload des pièces justificatives - {{ client.nom }} {{ client.prenom }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Progress Bar -->
+                    <div class="progress mb-4">
+                        {% set pieces_uploaded = pieces_existantes|length %}
+                        {% set total_pieces = pieces_requises|length %}
+                        {% set progress = (pieces_uploaded / total_pieces * 100)|round|int %}
+                        <div class="progress-bar bg-info" role="progressbar" 
+                             style="width: {{ progress }}%" 
+                             aria-valuenow="{{ progress }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ pieces_uploaded }}/{{ total_pieces }} pièces uploadées
+                        </div>
+                    </div>
+
+                    <!-- Liste des pièces requises -->
+                    <div class="row">
+                        {% for type_piece, libelle in pieces_requises %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">{{ libelle }}</h5>
+                                    {% set piece_existante = pieces_existantes|selectattr('type_piece', 'equalto', type_piece)|first %}
+                                    {% if piece_existante %}
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-check"></i> Uploadé
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-warning">
+                                            <i class="fas fa-clock"></i> En attente
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <div class="card-body">
+                                    {% if piece_existante %}
+                                        <p class="text-success">
+                                            <i class="fas fa-file"></i> {{ piece_existante.nom_fichier }}
+                                        </p>
+                                        <small class="text-muted">
+                                            Uploadé le {{ piece_existante.date_upload.strftime('%d/%m/%Y à %H:%M') }}
+                                        </small>
+                                        <div class="mt-2">
+                                            <a href="{{ url_for('download_piece', piece_id=piece_existante.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-download"></i> Télécharger
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        <form method="POST" enctype="multipart/form-data" class="upload-form">
+                                            <input type="hidden" name="type_piece" value="{{ type_piece }}">
+                                            <div class="form-group">
+                                                <input type="file" 
+                                                       class="form-control-file" 
+                                                       name="file" 
+                                                       accept=".pdf,.jpg,.jpeg,.png" 
+                                                       required>
+                                                <small class="form-text text-muted">
+                                                    Formats acceptés: PDF, JPG, PNG (max 10MB)
+                                                </small>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-upload"></i> Uploader
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('client_details', client_id=client.id) }}" 
+                                   class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Retour au dossier client
+                                </a>
+                                
+                                {% if pieces_existantes|length == pieces_requises|length %}
+                                <a href="{{ url_for('complete_kyc', client_id=client.id) }}" 
+                                   class="btn btn-success">
+                                    <i class="fas fa-arrow-right"></i> Compléter le KYC
+                                </a>
+                                {% else %}
+                                <button class="btn btn-success" disabled>
+                                    <i class="fas fa-lock"></i> Compléter toutes les pièces pour continuer
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.upload-form {
+    border: 2px dashed #dee2e6;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    transition: border-color 0.3s;
+}
+
+.upload-form:hover {
+    border-color: #007bff;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Documents pour Signature - {{ client.nom }} {{ client.prenom }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-signature me-2"></i>
+                        Documents en Attente de Signature
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Client: {{ client.nom }} {{ client.prenom }}</h5>
+                            <p class="text-muted">Email: {{ client.email }}</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <span class="badge bg-warning fs-6">
+                                <i class="fas fa-clock me-1"></i>
+                                En attente de signature
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="mb-3">Documents envoyés pour signature :</h6>
+                            
+                            {% if documents %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Type de Document</th>
+                                            <th>Date d'Envoi</th>
+                                            <th>Statut</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for doc in documents %}
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-file-alt me-2 text-primary"></i>
+                                                {{ doc.type_document.replace('_', ' ').title() }}
+                                            </td>
+                                            <td>
+                                                {% if doc.date_envoi_signature %}
+                                                    {{ doc.date_envoi_signature.strftime('%d/%m/%Y à %H:%M') }}
+                                                {% else %}
+                                                    <span class="text-muted">Non envoyé</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if doc.statut == 'ENVOYE_SIGNATURE' %}
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        En attente
+                                                    </span>
+                                                {% elif doc.statut == 'SIGNE' %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check me-1"></i>
+                                                        Signé
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ doc.statut }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if doc.statut == 'ENVOYE_SIGNATURE' %}
+                                                    <a href="{{ url_for('confirm_documents_signed', client_id=client.id) }}" 
+                                                       class="btn btn-sm btn-success"
+                                                       onclick="return confirm('Confirmer que ce document a été signé ?')">
+                                                        <i class="fas fa-signature me-1"></i>
+                                                        Marquer comme signé
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Aucun document en attente de signature.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('client_details', client_id=client.id) }}" 
+                                   class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Retour au dossier client
+                                </a>
+                                
+                                {% if documents and documents|selectattr('statut', 'equalto', 'SIGNE')|list|length == documents|length %}
+                                <a href="{{ url_for('send_subscription_forms', client_id=client.id) }}" 
+                                   class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>
+                                    Envoyer bulletins de souscription
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Instructions pour le client -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-info-circle text-info me-2"></i>
+                                        Instructions pour la signature
+                                    </h6>
+                                    <ul class="mb-0">
+                                        <li>Les documents ont été envoyés par email au client</li>
+                                        <li>Le client doit signer électroniquement chaque document</li>
+                                        <li>Une fois tous les documents signés, vous pouvez procéder à l'envoi des bulletins de souscription</li>
+                                        <li>Les dates de signature seront automatiquement enregistrées</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

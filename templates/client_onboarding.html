@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Nouveau Client - Workflow CIF{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Nouveau Client - Document d'Entrée en Relation (DER)
+                </h3>
+                <p class="text-muted mb-0">Étape 1/4 - Informations personnelles et financières</p>
+            </div>
+            
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    <!-- Informations Personnelles -->
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-user me-2"></i>Informations Personnelles
+                        </h5>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="nom" class="form-label">Nom *</label>
+                                <input type="text" class="form-control" id="nom" name="nom" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="prenom" class="form-label">Prénom *</label>
+                                <input type="text" class="form-control" id="prenom" name="prenom" required>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <label for="email" class="form-label">Adresse Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="telephone" class="form-label">Téléphone</label>
+                                <input type="tel" class="form-control" id="telephone" name="telephone">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="date_naissance" class="form-label">Date de Naissance</label>
+                                <input type="date" class="form-control" id="date_naissance" name="date_naissance">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="date_entree_relation" class="form-label">Date d'Entrée en Relation *</label>
+                                <input type="date" class="form-control" id="date_entree_relation" name="date_entree_relation" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="profession" class="form-label">Profession</label>
+                                <input type="text" class="form-control" id="profession" name="profession">
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <label for="adresse" class="form-label">Adresse Complète</label>
+                                <textarea class="form-control" id="adresse" name="adresse" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="ville" class="form-label">Ville *</label>
+                                <input type="text" class="form-control" id="ville" name="ville" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Situation Financière -->
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-euro-sign me-2"></i>Situation Financière
+                        </h5>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="revenus_mensuels" class="form-label">Revenus Mensuels (€)</label>
+                                <input type="number" class="form-control" id="revenus_mensuels" name="revenus_mensuels" min="0" step="100">
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="charges_mensuelles" class="form-label">Charges Mensuelles (€)</label>
+                                <input type="number" class="form-control" id="charges_mensuelles" name="charges_mensuelles" min="0" step="100">
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="patrimoine_total" class="form-label">Patrimoine Total (€)</label>
+                                <input type="number" class="form-control" id="patrimoine_total" name="patrimoine_total" min="0" step="1000">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Informations Légales -->
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-gavel me-2"></i>Informations Légales
+                        </h5>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="consentement_rgpd" required>
+                            <label class="form-check-label" for="consentement_rgpd">
+                                <strong>Consentement RGPD *</strong><br>
+                                <small class="text-muted">
+                                    J'accepte que mes données personnelles soient collectées et traitées dans le cadre 
+                                    de la prestation de conseil en investissement financier, conformément au RGPD.
+                                </small>
+                            </label>
+                        </div>
+                        
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="acceptation_cif" required>
+                            <label class="form-check-label" for="acceptation_cif">
+                                <strong>Acceptation des conditions CIF *</strong><br>
+                                <small class="text-muted">
+                                    J'accepte les conditions générales de la mission de conseil en investissement financier 
+                                    et comprends les obligations réglementaires associées.
+                                </small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour
+                        </a>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            Créer le Client <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Progress -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h6 class="mb-3">Progression du Workflow</h6>
+                <div class="progress mb-2" style="height: 10px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: 25%"></div>
+                </div>
+                <div class="d-flex justify-content-between small text-muted">
+                    <span><strong>1. DER</strong> (en cours)</span>
+                    <span>2. Documents</span>
+                    <span>3. Questionnaire</span>
+                    <span>4. Documents finaux</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set today's date as default for date_entree_relation
+    const dateField = document.getElementById('date_entree_relation');
+    if (dateField) {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        dateField.value = `${year}-${month}-${day}`;
+    }
+});
+</script>
+{% endblock %}
+

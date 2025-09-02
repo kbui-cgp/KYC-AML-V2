@@ -1,0 +1,330 @@
+{% extends "base.html" %}
+
+{% block title %}Questionnaire - {{ client.prenom }} {{ client.nom }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    <i class="fas fa-clipboard-list me-2"></i>
+                    Questionnaire Profil Investisseur - {{ client.prenom }} {{ client.nom }}
+                </h3>
+                <p class="text-muted mb-0">Étape 3/4 - Évaluation du profil de risque et objectifs d'investissement</p>
+            </div>
+            
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Important:</strong> Ce questionnaire permet de déterminer votre profil investisseur 
+                    conformément à la réglementation MiFID II. Répondez sincèrement à toutes les questions.
+                </div>
+                
+                <form method="POST" id="questionnaireForm">
+                    <!-- Question 1: Expérience -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-primary me-2">1</span>
+                                Quelle est votre expérience en matière d'investissement?
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q1" id="q1_debutant" value="debutant" required>
+                                        <label class="form-check-label" for="q1_debutant">
+                                            <strong>Débutant</strong><br>
+                                            <small class="text-muted">Aucune expérience ou très limitée</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q1" id="q1_intermediaire" value="intermediaire">
+                                        <label class="form-check-label" for="q1_intermediaire">
+                                            <strong>Intermédiaire</strong><br>
+                                            <small class="text-muted">Quelques investissements, connaissance de base</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q1" id="q1_avance" value="avance">
+                                        <label class="form-check-label" for="q1_avance">
+                                            <strong>Avancé</strong><br>
+                                            <small class="text-muted">Expérience significative, connaissance approfondie</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 2: Horizon d'investissement -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-primary me-2">2</span>
+                                Quel est votre horizon d'investissement principal?
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q2" id="q2_court" value="court" required>
+                                        <label class="form-check-label" for="q2_court">
+                                            <strong>Court terme</strong><br>
+                                            <small class="text-muted">Moins de 2 ans</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q2" id="q2_moyen" value="moyen">
+                                        <label class="form-check-label" for="q2_moyen">
+                                            <strong>Moyen terme</strong><br>
+                                            <small class="text-muted">2 à 5 ans</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q2" id="q2_long" value="long">
+                                        <label class="form-check-label" for="q2_long">
+                                            <strong>Long terme</strong><br>
+                                            <small class="text-muted">Plus de 5 ans</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 3: Tolérance au risque -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-primary me-2">3</span>
+                                Comment réagissez-vous face aux fluctuations du marché?
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="q3" id="q3_panique" value="vente_panique" required>
+                                        <label class="form-check-label" for="q3_panique">
+                                            <strong>Je vends immédiatement</strong><br>
+                                            <small class="text-muted">La baisse me fait paniquer</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="q3" id="q3_inquiet" value="inquiet">
+                                        <label class="form-check-label" for="q3_inquiet">
+                                            <strong>Je suis très inquiet</strong><br>
+                                            <small class="text-muted">J'envisage de vendre rapidement</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q3" id="q3_attente" value="attente">
+                                        <label class="form-check-label" for="q3_attente">
+                                            <strong>J'attends que ça se tasse</strong><br>
+                                            <small class="text-muted">Je ne change rien à court terme</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="q3" id="q3_opportunite" value="opportunite">
+                                        <label class="form-check-label" for="q3_opportunite">
+                                            <strong>Je vois une opportunité</strong><br>
+                                            <small class="text-muted">C'est normal, les marchés fluctuent</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q3" id="q3_achats" value="achats">
+                                        <label class="form-check-label" for="q3_achats">
+                                            <strong>J'en profite pour acheter</strong><br>
+                                            <small class="text-muted">Les baisses sont des opportunités</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 4: Allocation -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-primary me-2">4</span>
+                                Quel pourcentage de votre patrimoine souhaitez-vous investir?
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="q4" id="q4_moins10" value="moins_10" required>
+                                        <label class="form-check-label" for="q4_moins10">
+                                            <strong>Moins de 10%</strong><br>
+                                            <small class="text-muted">Investissement très prudent</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="q4" id="q4_10_25" value="10_25">
+                                        <label class="form-check-label" for="q4_10_25">
+                                            <strong>10% à 25%</strong><br>
+                                            <small class="text-muted">Approche équilibrée</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q4" id="q4_25_50" value="25_50">
+                                        <label class="form-check-label" for="q4_25_50">
+                                            <strong>25% à 50%</strong><br>
+                                            <small class="text-muted">Investissement significatif</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="q4" id="q4_50_75" value="50_75">
+                                        <label class="form-check-label" for="q4_50_75">
+                                            <strong>50% à 75%</strong><br>
+                                            <small class="text-muted">Approche dynamique</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q4" id="q4_plus75" value="plus_75">
+                                        <label class="form-check-label" for="q4_plus75">
+                                            <strong>Plus de 75%</strong><br>
+                                            <small class="text-muted">Investisseur très actif</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Question 5: Objectifs -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <span class="badge bg-primary me-2">5</span>
+                                Quel est votre objectif principal d'investissement?
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="q5" id="q5_preservation" value="preservation" required>
+                                        <label class="form-check-label" for="q5_preservation">
+                                            <strong>Préserver mon capital</strong><br>
+                                            <small class="text-muted">Sécurité avant tout</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="q5" id="q5_revenus" value="revenus">
+                                        <label class="form-check-label" for="q5_revenus">
+                                            <strong>Générer des revenus réguliers</strong><br>
+                                            <small class="text-muted">Priorité aux dividendes/coupons</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q5" id="q5_croissance_moderee" value="croissance_moderee">
+                                        <label class="form-check-label" for="q5_croissance_moderee">
+                                            <strong>Croissance modérée</strong><br>
+                                            <small class="text-muted">Équilibre sécurité/rendement</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="q5" id="q5_croissance" value="croissance">
+                                        <label class="form-check-label" for="q5_croissance">
+                                            <strong>Croissance du capital</strong><br>
+                                            <small class="text-muted">Accepter plus de risque pour plus de rendement</small>
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="q5" id="q5_croissance_aggressive" value="croissance_aggressive">
+                                        <label class="form-check-label" for="q5_croissance_aggressive">
+                                            <strong>Croissance agressive</strong><br>
+                                            <small class="text-muted">Maximiser le potentiel de gain</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Résultats temps réel -->
+                    <div class="card mb-4" id="resultsCard" style="display: none;">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-pie me-2"></i>
+                                Votre Profil Investisseur (Aperçu)
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="text-center">
+                                        <div class="display-4 text-primary" id="scoreDisplay">0</div>
+                                        <small class="text-muted">Score sur 25</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div id="profilDescription" class="h5 text-center text-muted">
+                                        Complétez le questionnaire pour voir votre profil
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Boutons de navigation -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('upload_documents', client_id=client.id) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Retour - Documents
+                        </a>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Enregistrer le Questionnaire
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Progress -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h6 class="mb-3">Progression du Workflow</h6>
+                <div class="progress mb-2" style="height: 10px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
+                </div>
+                <div class="d-flex justify-content-between small text-muted">
+                    <span>✓ 1. DER</span>
+                    <span>✓ 2. Documents</span>
+                    <span><strong>3. Questionnaire</strong> (en cours)</span>
+                    <span>4. Documents finaux</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/questionnaire.js') }}"></script>
+{% endblock %}

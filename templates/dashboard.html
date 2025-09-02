@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de Bord - Workflow CIF{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-5">
+        <i class="fas fa-users me-3"></i>
+        Tableau de Bord Clients
+    </h1>
+    <a href="{{ url_for('client_onboarding') }}" class="btn btn-primary">
+        <i class="fas fa-user-plus me-2"></i>Nouveau Client
+    </a>
+</div>
+
+{% if clients %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>
+                Liste des Clients ({{ clients|length }})
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><i class="fas fa-user me-2"></i>Client</th>
+                            <th><i class="fas fa-envelope me-2"></i>Contact</th>
+                            <th><i class="fas fa-euro-sign me-2"></i>Finances</th>
+                            <th><i class="fas fa-tasks me-2"></i>Statut Workflow</th>
+                            <th><i class="fas fa-chart-pie me-2"></i>Profil</th>
+                            <th><i class="fas fa-calendar me-2"></i>Dates</th>
+                            <th><i class="fas fa-cog me-2"></i>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-primary text-white me-3">
+                                        {{ client.prenom[0] }}{{ client.nom[0] }}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ client.prenom }} {{ client.nom }}</h6>
+                                        {% if client.profession %}
+                                            <small class="text-muted">{{ client.profession }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <i class="fas fa-envelope me-1"></i>{{ client.email }}
+                                </div>
+                                {% if client.telephone %}
+                                    <div class="text-muted small">
+                                        <i class="fas fa-phone me-1"></i>{{ client.telephone }}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if client.revenus_mensuels %}
+                                    <div><strong>{{ "{:,.0f}".format(client.revenus_mensuels) }} €/mois</strong></div>
+                                {% endif %}
+                                {% if client.patrimoine_total %}
+                                    <div class="text-muted small">Patrimoine: {{ "{:,.0f}".format(client.patrimoine_total) }} €</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if client.statut_workflow.name == 'COMPLETED' %}success{% elif client.statut_workflow.name == 'CREATED' %}secondary{% elif client.statut_workflow.name == 'DER_GENERATED' %}info{% elif client.statut_workflow.name == 'DER_SENT' %}warning{% elif client.statut_workflow.name == 'DER_SIGNED' %}success{% elif client.statut_workflow.name == 'DOCUMENTS_UPLOADED' %}warning{% elif client.statut_workflow.name == 'QUESTIONNAIRE_COMPLETED' %}primary{% elif client.statut_workflow.name == 'DOCUMENTS_GENERATED' %}info{% elif client.statut_workflow.name == 'DOCUMENTS_SENT' %}warning{% elif client.statut_workflow.name == 'DOCUMENTS_SIGNED' %}success{% elif client.statut_workflow.name == 'SUBSCRIPTION_SENT' %}primary{% else %}danger{% endif %}">
+                                    {{ client.statut_workflow.value }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if client.tolerance_risque %}
+                                    <div>
+                                        <span class="badge bg-{% if client.tolerance_risque.name == 'FAIBLE' %}success{% elif client.tolerance_risque.name == 'MOYENNE' %}warning{% else %}danger{% endif %}">
+                                            {{ client.tolerance_risque.value }}
+                                        </span>
+                                    </div>
+                                    {% if client.profil_score %}
+                                        <small class="text-muted">Score: {{ client.profil_score }}/5</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Non défini</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="small">
+                                    <i class="fas fa-plus me-1"></i>{{ client.date_creation.strftime('%d/%m/%Y') }}
+                                </div>
+                                {% if client.date_derniere_maj != client.date_creation %}
+                                    <div class="small text-muted">
+                                        <i class="fas fa-edit me-1"></i>{{ client.date_derniere_maj.strftime('%d/%m/%Y') }}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('client_details', client_id=client.id) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="Détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    
+                                    {% if client.statut_workflow.name == 'DER_GENERATED' %}
+                                        <a href="{{ url_for('send_der_signature', client_id=client.id) }}" 
+                                           class="btn btn-sm btn-outline-primary" title="Envoyer DER">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </a>
+                                    {% elif client.statut_workflow.name == 'DER_SENT' %}
+                                        <a href="{{ url_for('confirm_der_signed', client_id=client.id) }}" 
+                                           class="btn btn-sm btn-outline-success" title="Confirmer signature">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                    {% elif client.statut_workflow.name == 'DER_SIGNED' %}
+                                        <a href="{{ url_for('upload_documents', client_id=client.id) }}" 
+                                           class="btn btn-sm btn-outline-warning" title="Documents">
+                                            <i class="fas fa-upload"></i>
+                                        </a>
+                                    {% elif client.statut_workflow.name == 'DOCUMENTS_UPLOADED' %}
+                                        <a href="{{ url_for('questionnaire', client_id=client.id) }}" 
+                                           class="btn btn-sm btn-outline-info" title="Questionnaire">
+                                            <i class="fas fa-clipboard-list"></i>
+                                        </a>
+                                    {% elif client.statut_workflow.name == 'QUESTIONNAIRE_COMPLETED' %}
+                                        <a href="{{ url_for('generate_final_documents', client_id=client.id) }}" 
+                                           class="btn btn-sm btn-outline-success" title="Générer Documents">
+                                            <i class="fas fa-file-word"></i>
+                                        </a>
+                                    {% elif client.statut_workflow.name == 'DOCUMENTS_GENERATED' %}
+                                        <a href="{{ url_for('send_documents_signature', client_id=client.id) }}" 
+                                           class="btn btn-sm btn-outline-primary" title="Envoyer Signature">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </a>
+                                    {% elif client.statut_workflow.name == 'DOCUMENTS_SENT' %}
+                                        <a href="{{ url_for('confirm_documents_signed', client_id=client.id) }}" 
+                                           class="btn btn-sm btn-outline-success" title="Confirmer Signatures">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                    {% elif client.statut_workflow.name == 'DOCUMENTS_SIGNED' %}
+                                        <a href="{{ url_for('send_subscription_forms', client_id=client.id) }}" 
+                                           class="btn btn-sm btn-outline-info" title="Bulletins">
+                                            <i class="fas fa-file-contract"></i>
+                                        </a>
+                                    {% elif client.statut_workflow.name == 'SUBSCRIPTION_SENT' %}
+                                        <a href="{{ url_for('complete_workflow', client_id=client.id) }}" 
+                                           class="btn btn-sm btn-success" title="Terminer">
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques par statut -->
+    <div class="row mt-4">
+        {% set status_stats = {} %}
+        {% for client in clients %}
+            {% set _ = status_stats.update({client.statut_workflow.value: status_stats.get(client.statut_workflow.value, 0) + 1}) %}
+        {% endfor %}
+        
+        {% for status, count in status_stats.items() %}
+            <div class="col-md-2">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h4 class="text-primary">{{ count }}</h4>
+                        <p class="small text-muted">{{ status }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% else %}
+    <!-- État vide -->
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="fas fa-users fa-5x text-muted"></i>
+        </div>
+        <h3 class="text-muted">Aucun client enregistré</h3>
+        <p class="text-muted mb-4">
+            Commencez par créer votre premier client pour débuter le workflow CIF.
+        </p>
+        <a href="{{ url_for('client_onboarding') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-user-plus me-2"></i>
+            Créer le Premier Client
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Filtrage et tri des clients
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-actualisation toutes les 60 secondes
+        setTimeout(function() {
+            window.location.reload();
+        }, 60000);
+    });
+</script>
+{% endblock %}

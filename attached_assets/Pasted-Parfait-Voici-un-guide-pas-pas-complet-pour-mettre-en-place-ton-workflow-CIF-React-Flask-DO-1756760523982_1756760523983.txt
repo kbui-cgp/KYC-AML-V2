@@ -1,0 +1,205 @@
+Parfait ! Voici un guide pas-à-pas complet pour mettre en place ton workflow CIF (React + Flask + DOCX) sur Replit, sans être développeur.
+
+1️⃣ Crée un compte Replit
+
+Va sur https://replit.com
+.
+
+Clique sur Sign Up et crée un compte gratuit (ou connecte-toi avec Google/GitHub).
+
+2️⃣ Crée le backend Flask
+
+Clique sur + Create → Create Repl → Python (Flask).
+
+Nom du projet : cif-backend.
+
+Dans le projet, crée ces fichiers :
+
+app.py
+
+from flask import Flask, request, jsonify
+from docxtpl import DocxTemplate
+
+app = Flask(__name__)
+
+@app.route("/submit_questionnaire", methods=["POST"])
+def submit_questionnaire():
+    data = request.get_json()
+    doc = DocxTemplate("templates/rapport_model.docx")
+    doc.render(data)
+    output_file = f"/tmp/{data['client_name']}_rapport.docx"
+    doc.save(output_file)
+    return jsonify({"message": "Rapport généré", "path": output_file})
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+
+
+fusion_docs.py
+
+from docxtpl import DocxTemplate
+
+def generate_doc(template_path, output_path, context):
+    doc = DocxTemplate(template_path)
+    doc.render(context)
+    doc.save(output_path)
+    return output_path
+
+
+requirements.txt
+
+Flask
+docxtpl
+
+
+Crée un dossier templates et mets dedans rapport_model.docx avec des placeholders :
+
+Nom : {{ client_name }}
+Âge : {{ age }}
+Revenu : {{ income }}
+Horizon : {{ horizon }}
+Tolérance au risque : {{ risk_tolerance }}
+
+3️⃣ Crée le frontend React
+
+Crée un nouveau projet Replit → Node.js.
+
+Nom du projet : cif-frontend.
+
+Dans le projet, crée les fichiers :
+
+package.json
+
+{
+  "name": "cif-form",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "@rjsf/material-ui": "^5.0.0",
+    "@mui/material": "^5.13.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.11.16"
+  },
+  "scripts": {
+    "start": "react-scripts start"
+  }
+}
+
+
+src/index.js
+
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+
+
+src/App.js
+
+import React from "react";
+import InvestorForm from "./InvestorForm";
+
+function App() {
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>Workflow CIF - Profil Investisseur</h1>
+      <InvestorForm />
+    </div>
+  );
+}
+
+export default App;
+
+
+src/InvestorForm.js
+
+import React from "react";
+import Form from "@rjsf/material-ui";
+import { Container, Paper, Typography } from "@mui/material";
+
+const schema = {
+  title: "Profil Investisseur",
+  type: "object",
+  required: ["client_name", "age", "income"],
+  properties: {
+    client_name: { type: "string", title: "Nom du client" },
+    age: { type: "number", title: "Âge" },
+    income: { type: "number", title: "Revenu mensuel (€)" },
+    horizon: { type: "string", title: "Horizon d'investissement", enum: ["court","moyen","long"] },
+    risk_tolerance: { type: "string", title: "Tolérance au risque", enum: ["faible","moyenne","élevée"] }
+  }
+};
+
+const InvestorForm = () => {
+  const handleSubmit = ({ formData }) => {
+    fetch("https://<URL_PUBLIC_BACKEND>/submit_questionnaire", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
+    })
+      .then(res => res.json())
+      .then(data => alert("Rapport généré : " + JSON.stringify(data)))
+      .catch(err => console.error(err));
+  };
+
+  return (
+    <Container maxWidth="sm" style={{ marginTop: 40 }}>
+      <Paper elevation={3} style={{ padding: 30 }}>
+        <Typography variant="h4" gutterBottom>
+          Questionnaire Profil Investisseur
+        </Typography>
+        <Form schema={schema} onSubmit={handleSubmit} />
+      </Paper>
+    </Container>
+  );
+};
+
+export default InvestorForm;
+
+
+Remplace <URL_PUBLIC_BACKEND> par l’URL publique que Replit te donne quand tu lances le backend Flask.
+
+4️⃣ Lancer les deux projets
+Backend Flask
+
+Ouvre le terminal Replit dans le projet cif-backend.
+
+Installe les dépendances :
+
+pip install -r requirements.txt
+
+
+Clique Run.
+
+Copie l’URL publique donnée par Replit (quelque chose comme https://cif-backend.username.repl.co).
+
+Frontend React
+
+Ouvre le terminal Replit dans le projet cif-frontend.
+
+Installe les dépendances :
+
+npm install
+
+
+Clique Run.
+
+Ouvre l’URL publique fournie par Replit pour ton frontend.
+
+5️⃣ Tester le workflow
+
+Ouvre l’URL frontend React dans ton navigateur.
+
+Remplis le formulaire avec un nom, âge, revenu, horizon et tolérance au risque.
+
+Clique Submit → JSON envoyé au backend Flask.
+
+Flask génère le DOCX dans /tmp/ du backend Replit avec les placeholders remplacés.
+
+Vérifie l’alerte et le fichier généré.

@@ -1,0 +1,136 @@
+Cahier des charges Workflow CIF avec SignServer
+1️⃣ Objectif
+
+Workflow complet CIF/CGP :
+
+DER (Document d’Entrée en Relation)
+
+Collecte documents KYC
+
+Vérification KYC/AML (non certifié AMF, gratuit)
+
+Questionnaire profil investisseur
+
+Fusion documents réglementaires (rapport d’adéquation, lettre de mission)
+
+Signature électronique avec SignServer
+
+Archivage et suivi dans GED
+
+Contraintes : 100 % gratuit, illimité, API-friendly.
+
+2️⃣ Architecture technique
+Fonction	Outil	Front-end	Back-end	API / Notes
+GED / Workflow	Mayan EDMS	Interface web pour suivi / upload	Stockage, versioning, workflow	API REST pour upload/download, métadonnées, état workflow
+Questionnaire	Nextcloud + Nextcloud Forms	Formulaire interactif pour client	Stockage JSON, calcul profil investisseur	API pour récupération réponses
+Fusion documents	Docxtemplater / LibreOffice + Python	N/A	Fusion JSON → DOCX/PDF	Scriptable, upload automatique dans Mayan EDMS
+OCR KYC	Tesseract OCR	N/A	Extraction texte PDF / images	Résultat stocké dans Mayan EDMS
+Vérif AML / PEP	OpenSanctions / listes publiques FR/ONU/EU	N/A	Cross-check avec données KYC	Script Python / Node.js, état stocké dans Mayan EDMS
+Signature électronique	SignServer	Interface web pour signature	API REST pour signer PDF	Signatures conformes eIDAS, stockage PDF signé dans Mayan EDMS
+Orchestration	Python / Node.js	N/A	Automatisation du workflow complet	Appels API Mayan, Nextcloud, Docxtemplater, SignServer, OCR, AML
+3️⃣ Workflow étape par étape
+Étape 1 : DER
+
+Upload DER par le client via interface web.
+
+Stockage dans Mayan EDMS (PDF, métadonnées, état “DER reçu”).
+
+Étape 2 : Collecte documents KYC
+
+Client upload documents : pièce d’identité, justificatif domicile, avis d’impôt, relevé bancaire.
+
+Stockage dans Mayan EDMS, mise à jour état workflow : “KYC documents reçus”.
+
+Étape 3 : Extraction OCR
+
+Script Tesseract OCR extrait infos clés : nom, date naissance, adresse…
+
+Résultat stocké dans Mayan EDMS comme métadonnées.
+
+Étape 4 : Vérification AML / PEP gratuite
+
+Script Python / Node.js croise données OCR avec OpenSanctions + listes publiques FR/ONU/EU.
+
+Etat “AML check status” mis à jour dans Mayan EDMS : OK / PEP / Sanctionné.
+
+Étape 5 : Questionnaire profil investisseur
+
+Formulaire Nextcloud Forms pour client : questions interactives + logique conditionnelle.
+
+Calcul du profil investisseur (1–7) via script back-end.
+
+Stockage JSON dans Mayan EDMS.
+
+Étape 6 : Fusion documents
+
+Récupérer données KYC + questionnaire JSON.
+
+Générer documents : rapport d’adéquation, lettre de mission, souscriptions produits.
+
+Export PDF → upload automatique dans Mayan EDMS.
+
+Étape 7 : Signature électronique avec SignServer
+
+Back-end appelle API SignServer pour signer PDF :
+
+DER signé (si nécessaire)
+
+Lettre de mission
+
+Rapport d’adéquation
+
+PDF signé récupéré → stocké dans Mayan EDMS.
+
+Etat workflow mis à jour : “Documents signés”.
+
+Front-end : interface simple pour voir documents signés et télécharger.
+
+Étape 8 : Archivage et suivi
+
+Workflow automatisé dans Mayan EDMS : alertes, expiration documents, audit trail.
+
+Front-end conseiller : tableau de suivi état client.
+
+Back-end : API pour reporting automatique.
+
+4️⃣ Front-end / Back-end
+Côté	Tâches
+Front-end client	- Upload DER et KYC documents
+- Questionnaire interactif
+- Visualiser documents fusionnés et signés
+- Interface simple et responsive
+Front-end conseiller	- Tableau suivi client
+- Voir état workflow et documents signés
+- Alertes documents manquants / expirés
+Back-end	- Orchestration Python / Node.js
+- API Mayan EDMS
+- Extraction OCR Tesseract
+- AML OpenSanctions
+- Fusion Docxtemplater / LibreOffice
+- Appel API SignServer pour signature
+- Stockage PDF signé dans Mayan EDMS
+5️⃣ Sécurité et RGPD / CNIL
+
+HTTPS obligatoire.
+
+Chiffrement documents au repos (AES-256).
+
+Contrôle d’accès role-based.
+
+Consentement client pour collecte de données.
+
+Droits clients : accès, rectification, suppression.
+
+Suppression sécurisée après durée légale (10 ans pour documents financiers).
+
+6️⃣ Livrables attendus pour le développeur
+
+Code complet, commenté.
+
+Docker-compose pour déploiement facile.
+
+Modèles DOCX pour fusion documents.
+
+Documentation technique API / workflow / installation.
+
+Tests unitaires et exemples flux client complet.

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - Workflow CIF{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="display-4">
+                <i class="fas fa-chart-line text-primary me-3"></i>
+                Workflow CIF
+            </h1>
+        </div>
+        
+        <p class="lead text-muted">
+            Système de gestion de workflow pour conseillers en gestion de patrimoine.
+            Gérez vos clients de l'accueil à la signature des documents.
+        </p>
+        
+        <!-- Statistiques -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-0">{{ total_clients }}</h3>
+                                <p class="mb-0">Total Clients</p>
+                            </div>
+                            <i class="fas fa-users fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-0">{{ clients_en_cours }}</h3>
+                                <p class="mb-0">En Cours</p>
+                            </div>
+                            <i class="fas fa-clock fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-0">{{ clients_completes }}</h3>
+                                <p class="mb-0">Terminés</p>
+                            </div>
+                            <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Rapides -->
+        <div class="card mb-5">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions Rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <a href="{{ url_for('client_onboarding') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Nouveau Client
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-lg w-100">
+                            <i class="fas fa-list me-2"></i>
+                            Voir tous les Clients
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Clients Récents -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Clients Récents</h5>
+            </div>
+            <div class="card-body">
+                {% if clients_recents %}
+                    {% for client in clients_recents %}
+                        <div class="d-flex justify-content-between align-items-center py-2 {% if not loop.last %}border-bottom{% endif %}">
+                            <div>
+                                <h6 class="mb-1">{{ client.prenom }} {{ client.nom }}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-envelope me-1"></i>{{ client.email }}
+                                </small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-{% if client.statut_workflow.name == 'COMPLETED' %}success{% elif client.statut_workflow.name == 'CREATED' %}secondary{% else %}warning{% endif %} mb-1">
+                                    {{ client.statut_workflow.value }}
+                                </span>
+                                <br>
+                                <small class="text-muted">
+                                    {{ client.date_creation.strftime('%d/%m/%Y') }}
+                                </small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-primary">
+                            Voir tous <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucun client pour le moment</p>
+                        <a href="{{ url_for('client_onboarding') }}" class="btn btn-primary btn-sm">
+                            Créer le premier client
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

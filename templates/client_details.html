@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+
+{% block title %}{{ client.prenom }} {{ client.nom }} - Détails Client{% endblock %}
+
+{% block content %}
+
+<!-- Barre de progression permanente -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Progression du Workflow</h6>
+                    <span class="badge bg-primary">{{ progress }}%</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-{% if progress == 100 %}success{% elif progress >= 50 %}primary{% else %}warning{% endif %}" 
+                         role="progressbar" 
+                         style="width: {{ progress }}%;" 
+                         aria-valuenow="{{ progress }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col text-center">
+                        <small class="text-{% if progress >= 17 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress >= 17 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            Créé
+                        </small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-{% if progress >= 33 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress >= 33 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            DER
+                        </small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-{% if progress >= 50 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress >= 50 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            Signé
+                        </small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-{% if progress >= 67 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress >= 67 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            Documents
+                        </small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-{% if progress >= 83 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress >= 83 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            KYC
+                        </small>
+                    </div>
+                    <div class="col text-center">
+                        <small class="text-{% if progress == 100 %}success{% else %}muted{% endif %}">
+                            <i class="fas fa-{% if progress == 100 %}check-circle{% else %}circle{% endif %}"></i><br>
+                            Terminé
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Informations Client -->
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        {{ client.prenom }} {{ client.nom }}
+                    </h5>
+                    <span class="badge bg-{% if client.statut_workflow.name == 'COMPLETED' %}success{% elif client.statut_workflow.name == 'CREATED' %}secondary{% else %}primary{% endif %}">
+                        {{ client.statut_workflow.value }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted">Email</small>
+                    <div><i class="fas fa-envelope me-2"></i>{{ client.email }}</div>
+                </div>
+                
+                {% if client.telephone %}
+                    <div class="mb-3">
+                        <small class="text-muted">Téléphone</small>
+                        <div><i class="fas fa-phone me-2"></i>{{ client.telephone }}</div>
+                    </div>
+                {% endif %}
+                
+                {% if client.date_naissance %}
+                    <div class="mb-3">
+                        <small class="text-muted">Date de naissance</small>
+                        <div><i class="fas fa-birthday-cake me-2"></i>{{ client.date_naissance.strftime('%d/%m/%Y') }}</div>
+                    </div>
+                {% endif %}
+                
+                {% if client.profession %}
+                    <div class="mb-3">
+                        <small class="text-muted">Profession</small>
+                        <div><i class="fas fa-briefcase me-2"></i>{{ client.profession }}</div>
+                    </div>
+                {% endif %}
+                
+                {% if client.adresse %}
+                    <div class="mb-3">
+                        <small class="text-muted">Adresse</small>
+                        <div><i class="fas fa-map-marker-alt me-2"></i>{{ client.adresse }}</div>
+                    </div>
+                {% endif %}
+                
+                <hr>
+                
+                <div class="mb-2">
+                    <small class="text-muted">Créé le</small>
+                    <div>{{ client.date_creation.strftime('%d/%m/%Y à %H:%M') }}</div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Dernière mise à jour</small>
+                    <div>{{ client.date_derniere_maj.strftime('%d/%m/%Y à %H:%M') }}</div>
+                </div>
+                
+                {% if client.date_entree_relation %}
+                    <div class="mb-2">
+                        <small class="text-muted">Date d'entrée en relation</small>
+                        <div><i class="fas fa-handshake me-2"></i>{{ client.date_entree_relation.strftime('%d/%m/%Y') }}</div>
+                    </div>
+                {% endif %}
+                
+                <!-- Suivi des signatures -->
+                {% if client.date_envoi_der or client.date_signature_der or client.date_envoi_documents or client.date_signature_documents or client.date_envoi_souscription %}
+                    <hr>
+                    <h6 class="text-primary">Suivi des Signatures</h6>
+                    
+                    {% if client.date_envoi_der %}
+                        <div class="small mb-1">
+                            <i class="fas fa-paper-plane text-info me-2"></i>
+                            DER envoyé: {{ client.date_envoi_der.strftime('%d/%m/%Y à %H:%M') }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if client.date_signature_der %}
+                        <div class="small mb-1">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            DER signé: {{ client.date_signature_der.strftime('%d/%m/%Y à %H:%M') }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if client.date_envoi_documents %}
+                        <div class="small mb-1">
+                            <i class="fas fa-paper-plane text-info me-2"></i>
+                            Documents envoyés: {{ client.date_envoi_documents.strftime('%d/%m/%Y à %H:%M') }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if client.date_signature_documents %}
+                        <div class="small mb-1">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Documents signés: {{ client.date_signature_documents.strftime('%d/%m/%Y à %H:%M') }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if client.date_envoi_souscription %}
+                        <div class="small mb-1">
+                            <i class="fas fa-file-contract text-primary me-2"></i>
+                            Bulletins envoyés: {{ client.date_envoi_souscription.strftime('%d/%m/%Y à %H:%M') }}
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Situation Financière -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-euro-sign me-2"></i>Situation Financière</h5>
+            </div>
+            <div class="card-body">
+                {% if client.revenus_mensuels %}
+                    <div class="mb-3">
+                        <small class="text-muted">Revenus mensuels</small>
+                        <div class="h5 text-success">{{ "{:,.0f}".format(client.revenus_mensuels) }} €</div>
+                    </div>
+                {% endif %}
+                
+                {% if client.charges_mensuelles %}
+                    <div class="mb-3">
+                        <small class="text-muted">Charges mensuelles</small>
+                        <div class="h6 text-danger">{{ "{:,.0f}".format(client.charges_mensuelles) }} €</div>
+                    </div>
+                {% endif %}
+                
+                {% if client.patrimoine_total %}
+                    <div class="mb-3">
+                        <small class="text-muted">Patrimoine total</small>
+                        <div class="h5 text-primary">{{ "{:,.0f}".format(client.patrimoine_total) }} €</div>
+                    </div>
+                {% endif %}
+                
+                {% if client.revenus_mensuels and client.charges_mensuels %}
+                    <div class="mb-3">
+                        <small class="text-muted">Capacité d'épargne mensuelle</small>
+                        <div class="h6 text-info">{{ "{:,.0f}".format(client.revenus_mensuels - client.charges_mensuelles) }} €</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Profil Investisseur -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Profil Investisseur</h5>
+            </div>
+            <div class="card-body">
+                {% if client.tolerance_risque %}
+                    <div class="mb-3">
+                        <small class="text-muted">Tolérance au risque</small>
+                        <div>
+                            <span class="badge bg-{% if client.tolerance_risque.name == 'FAIBLE' %}success{% elif client.tolerance_risque.name == 'MOYENNE' %}warning{% else %}danger{% endif %} me-2">
+                                {{ client.tolerance_risque.value }}
+                            </span>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if client.horizon_investissement %}
+                    <div class="mb-3">
+                        <small class="text-muted">Horizon d'investissement</small>
+                        <div><i class="fas fa-clock me-2"></i>{{ client.horizon_investissement.value }}</div>
+                    </div>
+                {% endif %}
+                
+                {% if client.profil_score %}
+                    <div class="mb-3">
+                        <small class="text-muted">Score de profil</small>
+                        <div class="h5">{{ client.profil_score }}/5</div>
+                    </div>
+                {% endif %}
+                
+                {% if client.experience_financiere %}
+                    <div class="mb-3">
+                        <small class="text-muted">Expérience financière</small>
+                        <div>{{ client.experience_financiere.title() }}</div>
+                    </div>
+                {% endif %}
+                
+                {% if client.objectifs_investissement %}
+                    <div>
+                        <small class="text-muted">Objectifs d'investissement</small>
+                        <div>{{ client.objectifs_investissement.replace('_', ' ').title() }}</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contenu Principal -->
+    <div class="col-lg-8">
+        <!-- Actions Workflow -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Actions Workflow</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    {% if client.statut_workflow.name == 'DER_GENERATED' %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('send_der_signature', client_id=client.id) }}" class="btn btn-primary w-100">
+                                <i class="fas fa-paper-plane me-2"></i>Envoyer DER en Signature
+                            </a>
+                        </div>
+                    {% elif client.statut_workflow.name == 'DER_SENT' %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('confirm_der_signed', client_id=client.id) }}" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i>Confirmer Signature DER
+                            </a>
+                        </div>
+                    {% elif client.statut_workflow.name == 'DER_SIGNED' %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('upload_documents', client_id=client.id) }}" class="btn btn-warning w-100">
+                                <i class="fas fa-upload me-2"></i>Télécharger Documents KYC
+                            </a>
+                        </div>
+                    {% elif client.statut_workflow.name == 'DOCUMENTS_UPLOADED' %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('questionnaire', client_id=client.id) }}" class="btn btn-info w-100">
+                                <i class="fas fa-clipboard-list me-2"></i>Compléter Questionnaire
+                            </a>
+                        </div>
+                    {% elif client.statut_workflow.name == 'QUESTIONNAIRE_COMPLETED' %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('generate_final_documents', client_id=client.id) }}" class="btn btn-success w-100">
+                                <i class="fas fa-file-word me-2"></i>Générer Documents Finaux
+                            </a>
+                        </div>
+                    {% elif client.statut_workflow.name == 'DOCUMENTS_GENERATED' %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('send_documents_signature', client_id=client.id) }}" class="btn btn-primary w-100">
+                                <i class="fas fa-paper-plane me-2"></i>Envoyer en Signature
+                            </a>
+                        </div>
+                    {% elif client.statut_workflow.name == 'DOCUMENTS_SENT' %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('confirm_documents_signed', client_id=client.id) }}" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i>Confirmer Signatures
+                            </a>
+                        </div>
+                    {% elif client.statut_workflow.name == 'DOCUMENTS_SIGNED' %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('send_subscription_forms', client_id=client.id) }}" class="btn btn-info w-100">
+                                <i class="fas fa-file-contract me-2"></i>Envoyer Bulletins Souscription
+                            </a>
+                        </div>
+                    {% elif client.statut_workflow.name == 'SUBSCRIPTION_SENT' %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('complete_workflow', client_id=client.id) }}" class="btn btn-primary w-100">
+                                <i class="fas fa-check me-2"></i>Terminer Workflow
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="col-md-6">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-list me-2"></i>Retour au Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Documents -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-folder-open me-2"></i>
+                    Documents ({{ documents|length }})
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if documents %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>Type</th>
+                                    <th>Taille</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in documents %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-file-{% if 'pdf' in doc.nom_original.lower() %}pdf{% elif doc.genere_automatiquement %}word{% else %}alt{% endif %} me-2"></i>
+                                        {{ doc.nom_original }}
+                                        {% if doc.genere_automatiquement %}
+                                            <span class="badge bg-success ms-2">Auto-généré</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if doc.type_document.name in ['RAPPORT_ADEQUATION', 'LETTRE_MISSION'] %}primary{% else %}secondary{% endif %}">
+                                            {{ doc.type_document.value }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if doc.taille_fichier %}
+                                            {{ "%.1f"|format(doc.taille_fichier / 1024) }} KB
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ doc.date_upload.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('download_document', document_id=doc.id) }}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-download me-1"></i>Télécharger
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucun document téléchargé</p>
+                        {% if client.statut_workflow.name in ['DER_COMPLETED', 'DOCUMENTS_UPLOADED'] %}
+                            <a href="{{ url_for('upload_documents', client_id=client.id) }}" class="btn btn-primary">
+                                <i class="fas fa-upload me-2"></i>Télécharger des Documents
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Réponses du Questionnaire -->
+        {% if responses %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        Réponses du Questionnaire
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for response in responses %}
+                        <div class="mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                            <h6 class="text-primary">{{ response.question_text }}</h6>
+                            <p class="mb-1">
+                                <strong>Réponse:</strong> {{ response.reponse.replace('_', ' ').title() }}
+                            </p>
+                            <small class="text-muted">
+                                Score: {{ response.score }} points | 
+                                Répondu le {{ response.date_reponse.strftime('%d/%m/%Y à %H:%M') }}
+                            </small>
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="text-center mt-3">
+                        {% set total_score = responses|sum(attribute='score') %}
+                        <div class="alert alert-info">
+                            <h6 class="mb-2">Score Total: {{ total_score }}/25</h6>
+                            <p class="mb-0">
+                                Profil déterminé: 
+                                <span class="badge bg-{% if total_score <= 7 %}success{% elif total_score <= 14 %}warning{% else %}danger{% endif %}">
+                                    {% if total_score <= 7 %}Prudent{% elif total_score <= 14 %}Équilibré{% else %}Dynamique{% endif %}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
